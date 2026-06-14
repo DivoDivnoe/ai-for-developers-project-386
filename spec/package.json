@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "compile": "tsp compile main.tsp",
+    "compile": "rm -rf ../openapi && tsp compile main.tsp",
     "watch": "tsp compile main.tsp --watch",
     "lint": "tsp compile main.tsp"
   },

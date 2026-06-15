@@ -1,0 +1,8 @@
+{
+  "name": "ai-for-developers-project-386",
+  "private": true,
+  "scripts": {
+    "spec:compile": "pnpm -C spec compile",
+    "spec:watch": "pnpm -C spec watch"
+  }
+}

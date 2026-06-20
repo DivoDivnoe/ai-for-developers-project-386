@@ -2,8 +2,9 @@ import { api } from './client';
 
 import type { components } from './schema';
 
-type AvailabilityInterval = components['schemas']['AvailabilityInterval'];
-type CreateAvailabilityIntervalRequest = components['schemas']['CreateAvailabilityIntervalRequest'];
+export type AvailabilityInterval = components['schemas']['AvailabilityInterval'];
+export type CreateAvailabilityIntervalRequest =
+  components['schemas']['CreateAvailabilityIntervalRequest'];
 
 export async function listAvailability(): Promise<AvailabilityInterval[]> {
   const res = await api.GET('/availability');

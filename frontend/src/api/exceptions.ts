@@ -2,8 +2,9 @@ import { api } from './client';
 
 import type { components } from './schema';
 
-type ScheduleException = components['schemas']['ScheduleException'];
-type CreateScheduleExceptionRequest = components['schemas']['CreateScheduleExceptionRequest'];
+export type ScheduleException = components['schemas']['ScheduleException'];
+export type CreateScheduleExceptionRequest =
+  components['schemas']['CreateScheduleExceptionRequest'];
 
 export async function listExceptions(): Promise<ScheduleException[]> {
   const res = await api.GET('/exceptions');

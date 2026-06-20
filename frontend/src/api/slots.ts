@@ -2,8 +2,8 @@ import { api } from './client';
 
 import type { components } from './schema';
 
-type Slot = components['schemas']['Slot'];
-type MeetingDuration = components['schemas']['MeetingDuration'];
+export type Slot = components['schemas']['Slot'];
+export type MeetingDuration = components['schemas']['MeetingDuration'];
 
 export async function getSlots(query: {
   date: string;

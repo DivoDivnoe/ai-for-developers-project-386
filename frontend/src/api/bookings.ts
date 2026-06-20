@@ -2,8 +2,8 @@ import { api } from './client';
 
 import type { components } from './schema';
 
-type Booking = components['schemas']['Booking'];
-type CreateBookingRequest = components['schemas']['CreateBookingRequest'];
+export type Booking = components['schemas']['Booking'];
+export type CreateBookingRequest = components['schemas']['CreateBookingRequest'];
 
 export async function listBookings(): Promise<Booking[]> {
   const res = await api.GET('/bookings');

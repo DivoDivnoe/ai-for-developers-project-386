@@ -19,6 +19,13 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   importXFlatConfigs.recommended,
   {
+    settings: {
+      'import-x/extensions': ['.ts', '.tsx', '.cts', '.mts', '.js', '.jsx', '.cjs', '.mjs'],
+      'import-x/parsers': { '@typescript-eslint/parser': ['.ts', '.tsx', '.cts', '.mts'] },
+      'import-x/resolver': { typescript: true },
+    },
+  },
+  {
     languageOptions: {
       ecmaVersion: 2023,
       sourceType: 'module',

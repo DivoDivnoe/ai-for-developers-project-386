@@ -7,13 +7,17 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "typecheck": "pnpm -r run --if-present typecheck",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "eslint": "10.5.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-import-x": "4.16.2",
+    "husky": "9.1.7",
+    "lint-staged": "17.0.7",
     "prettier": "3.8.4",
     "typescript": "6.0.3",
     "typescript-eslint": "8.61.1"

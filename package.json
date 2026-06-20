@@ -3,9 +3,19 @@
   "private": true,
   "scripts": {
     "spec:compile": "pnpm -C spec compile",
-    "spec:watch": "pnpm -C spec watch"
+    "spec:watch": "pnpm -C spec watch",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
-    "typescript": "6.0.3"
+    "@eslint/js": "10.0.1",
+    "eslint": "10.5.0",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-import-x": "4.16.2",
+    "prettier": "3.8.4",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.61.1"
   }
 }

@@ -9,6 +9,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "pnpm -r run --if-present typecheck",
+    "test": "pnpm -r run --if-present test",
     "prepare": "husky"
   },
   "devDependencies": {

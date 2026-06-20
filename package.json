@@ -4,5 +4,8 @@
   "scripts": {
     "spec:compile": "pnpm -C spec compile",
     "spec:watch": "pnpm -C spec watch"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3"
   }
 }

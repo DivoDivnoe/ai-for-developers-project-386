@@ -1,10 +1,11 @@
 import { api } from './client';
-import { unwrap } from './unwrap';
 
 import type { components } from './schema';
 
 type HealthCheck = components['schemas']['HealthCheck'];
 
-export function getHealth(): Promise<HealthCheck> {
-  return unwrap<HealthCheck>(api.GET('/health'));
+export async function getHealth(): Promise<HealthCheck> {
+  const res = await api.GET('/health');
+  if (res.error) throw res.error;
+  return res.data;
 }

@@ -152,6 +152,9 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    ApiError: {
+      message: string;
+    };
     AvailabilityInterval: {
       id: components['schemas']['uuid'];
       dayOfWeek: components['schemas']['DayOfWeek'];
@@ -262,6 +265,15 @@ export interface operations {
           'application/json': components['schemas']['AvailabilityInterval'][];
         };
       };
+      /** @description Server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiError'];
+        };
+      };
     };
   };
   Availability_create: {
@@ -284,6 +296,15 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['AvailabilityInterval'];
+        };
+      };
+      /** @description The server could not understand the request due to invalid syntax. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiError'];
         };
       };
     };
@@ -312,6 +333,24 @@ export interface operations {
           'application/json': components['schemas']['AvailabilityInterval'];
         };
       };
+      /** @description The server could not understand the request due to invalid syntax. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiError'];
+        };
+      };
+      /** @description The server cannot find the requested resource. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiError'];
+        };
+      };
     };
   };
   Availability_remove: {
@@ -332,6 +371,15 @@ export interface operations {
         };
         content?: never;
       };
+      /** @description The server cannot find the requested resource. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiError'];
+        };
+      };
     };
   };
   Bookings_list: {
@@ -350,6 +398,15 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['Booking'][];
+        };
+      };
+      /** @description Server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiError'];
         };
       };
     };
@@ -376,6 +433,24 @@ export interface operations {
           'application/json': components['schemas']['Booking'];
         };
       };
+      /** @description The server could not understand the request due to invalid syntax. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiError'];
+        };
+      };
+      /** @description The request conflicts with the current state of the server. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiError'];
+        };
+      };
     };
   };
   Bookings_get: {
@@ -396,6 +471,15 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['Booking'];
+        };
+      };
+      /** @description The server cannot find the requested resource. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiError'];
         };
       };
     };
@@ -420,6 +504,15 @@ export interface operations {
           'application/json': components['schemas']['Booking'];
         };
       };
+      /** @description The server cannot find the requested resource. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiError'];
+        };
+      };
     };
   };
   Exceptions_list: {
@@ -438,6 +531,15 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['ScheduleException'][];
+        };
+      };
+      /** @description Server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiError'];
         };
       };
     };
@@ -462,6 +564,15 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['ScheduleException'];
+        };
+      };
+      /** @description The server could not understand the request due to invalid syntax. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiError'];
         };
       };
     };
@@ -490,6 +601,24 @@ export interface operations {
           'application/json': components['schemas']['ScheduleException'];
         };
       };
+      /** @description The server could not understand the request due to invalid syntax. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiError'];
+        };
+      };
+      /** @description The server cannot find the requested resource. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiError'];
+        };
+      };
     };
   };
   Exceptions_remove: {
@@ -509,6 +638,15 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+      /** @description The server cannot find the requested resource. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiError'];
+        };
       };
     };
   };
@@ -530,6 +668,15 @@ export interface operations {
           'application/json': components['schemas']['HealthCheck'];
         };
       };
+      /** @description Server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiError'];
+        };
+      };
     };
   };
   getOwner: {
@@ -548,6 +695,15 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['Owner'];
+        };
+      };
+      /** @description Server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiError'];
         };
       };
     };
@@ -571,6 +727,24 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['Slot'][];
+        };
+      };
+      /** @description The server could not understand the request due to invalid syntax. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiError'];
+        };
+      };
+      /** @description Server error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApiError'];
         };
       };
     };

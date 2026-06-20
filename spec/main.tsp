@@ -108,67 +108,98 @@ model HealthCheck {
   status: string;
 }
 
+// --- Errors ---
+
+@error
+model ApiError {
+  message: string;
+}
+
+@error
+model BadRequestResponse {
+  @statusCode _: 400;
+  @body error: ApiError;
+}
+
+@error
+model NotFoundResponse {
+  @statusCode _: 404;
+  @body error: ApiError;
+}
+
+@error
+model ConflictResponse {
+  @statusCode _: 409;
+  @body error: ApiError;
+}
+
+@error
+model InternalErrorResponse {
+  @statusCode _: 500;
+  @body error: ApiError;
+}
+
 // --- Operations ---
 
 @route("/health")
 @get
-op health(): HealthCheck;
+op health(): HealthCheck | InternalErrorResponse;
 
 @route("/owner")
 @get
-op getOwner(): Owner;
+op getOwner(): Owner | InternalErrorResponse;
 
 @route("/slots")
 @get
-op getSlots(@query date: plainDate, @query duration: MeetingDuration): Slot[];
+op getSlots(@query date: plainDate, @query duration: MeetingDuration): Slot[] | BadRequestResponse | InternalErrorResponse;
 
 @route("/bookings")
 interface Bookings {
   @get
-  list(): Booking[];
+  list(): Booking[] | InternalErrorResponse;
 
   @post
-  create(@body body: CreateBookingRequest): Booking;
+  create(@body body: CreateBookingRequest): Booking | BadRequestResponse | ConflictResponse;
 
   @get
   @route("/{id}")
-  get(@path id: uuid): Booking;
+  get(@path id: uuid): Booking | NotFoundResponse;
 
   @delete
   @route("/{id}")
-  cancel(@path id: uuid): Booking;
+  cancel(@path id: uuid): Booking | NotFoundResponse;
 }
 
 @route("/availability")
 interface Availability {
   @get
-  list(): AvailabilityInterval[];
+  list(): AvailabilityInterval[] | InternalErrorResponse;
 
   @post
-  create(@body body: CreateAvailabilityIntervalRequest): AvailabilityInterval;
+  create(@body body: CreateAvailabilityIntervalRequest): AvailabilityInterval | BadRequestResponse;
 
   @put
   @route("/{id}")
-  update(@path id: uuid, @body body: CreateAvailabilityIntervalRequest): AvailabilityInterval;
+  update(@path id: uuid, @body body: CreateAvailabilityIntervalRequest): AvailabilityInterval | NotFoundResponse | BadRequestResponse;
 
   @delete
   @route("/{id}")
-  remove(@path id: uuid): void;
+  remove(@path id: uuid): void | NotFoundResponse;
 }
 
 @route("/exceptions")
 interface Exceptions {
   @get
-  list(): ScheduleException[];
+  list(): ScheduleException[] | InternalErrorResponse;
 
   @post
-  create(@body body: CreateScheduleExceptionRequest): ScheduleException;
+  create(@body body: CreateScheduleExceptionRequest): ScheduleException | BadRequestResponse;
 
   @put
   @route("/{id}")
-  update(@path id: uuid, @body body: CreateScheduleExceptionRequest): ScheduleException;
+  update(@path id: uuid, @body body: CreateScheduleExceptionRequest): ScheduleException | NotFoundResponse | BadRequestResponse;
 
   @delete
   @route("/{id}")
-  remove(@path id: uuid): void;
+  remove(@path id: uuid): void | NotFoundResponse;
 }

@@ -1,23 +1,30 @@
 import { api } from './client';
-import { unwrap } from './unwrap';
 
 import type { components } from './schema';
 
 type Booking = components['schemas']['Booking'];
 type CreateBookingRequest = components['schemas']['CreateBookingRequest'];
 
-export function listBookings(): Promise<Booking[]> {
-  return unwrap<Booking[]>(api.GET('/bookings'));
+export async function listBookings(): Promise<Booking[]> {
+  const res = await api.GET('/bookings');
+  if (res.error) throw res.error;
+  return res.data;
 }
 
-export function createBooking(body: CreateBookingRequest): Promise<Booking> {
-  return unwrap<Booking>(api.POST('/bookings', { body }));
+export async function createBooking(body: CreateBookingRequest): Promise<Booking> {
+  const res = await api.POST('/bookings', { body });
+  if (res.error) throw res.error;
+  return res.data;
 }
 
-export function getBooking(id: string): Promise<Booking> {
-  return unwrap<Booking>(api.GET('/bookings/{id}', { params: { path: { id } } }));
+export async function getBooking(id: string): Promise<Booking> {
+  const res = await api.GET('/bookings/{id}', { params: { path: { id } } });
+  if (res.error) throw res.error;
+  return res.data;
 }
 
-export function cancelBooking(id: string): Promise<Booking> {
-  return unwrap<Booking>(api.DELETE('/bookings/{id}', { params: { path: { id } } }));
+export async function cancelBooking(id: string): Promise<Booking> {
+  const res = await api.DELETE('/bookings/{id}', { params: { path: { id } } });
+  if (res.error) throw res.error;
+  return res.data;
 }

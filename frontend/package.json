@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc",
+    "verify": "tsc && eslint .",
     "gen:api": "openapi-typescript ../openapi/openapi.1.0.0.yaml -o src/api/schema.d.ts"
   },
   "dependencies": {

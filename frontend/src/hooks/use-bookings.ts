@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { cancelBooking, createBooking, getBooking, listBookings } from '../api/bookings';
 import { queryKeys } from '../api/query-keys';
@@ -14,9 +14,8 @@ export const useBookingsQuery = () =>
 
 export const useBookingQuery = (id: string | undefined) =>
   useQuery<Booking, ApiError>({
-    queryKey: queryKeys.bookings.detail(id as string),
-    queryFn: () => getBooking(id as string),
-    enabled: !!id,
+    queryKey: queryKeys.bookings.detail(id),
+    queryFn: id ? () => getBooking(id) : skipToken,
   });
 
 export const useCreateBookingMutation = () => {

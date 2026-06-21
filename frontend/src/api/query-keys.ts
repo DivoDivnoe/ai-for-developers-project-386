@@ -9,7 +9,7 @@ export const queryKeys = {
   exceptions: ['exceptions'] as const,
   bookings: {
     all: ['bookings'] as const,
-    detail: (id: string) => ['bookings', id] as const,
+    detail: (id: string | undefined) => ['bookings', id] as const,
   },
   slots: {
     all: ['slots'] as const,

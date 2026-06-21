@@ -1,6 +1,8 @@
 import js from '@eslint/js';
+import eslintReact from '@eslint-react/eslint-plugin';
 import prettierConfig from 'eslint-config-prettier';
 import { flatConfigs as importXFlatConfigs } from 'eslint-plugin-import-x';
+import jsxa11y from 'eslint-plugin-jsx-a11y';
 import reactHooks from 'eslint-plugin-react-hooks';
 import tseslint from 'typescript-eslint';
 
@@ -18,6 +20,8 @@ export default tseslint.config(
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
+  eslintReact.configs.recommended,
+  jsxa11y.flatConfigs.recommended,
   importXFlatConfigs.recommended,
   {
     settings: {

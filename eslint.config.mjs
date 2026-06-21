@@ -1,6 +1,7 @@
 import js from '@eslint/js';
 import prettierConfig from 'eslint-config-prettier';
 import { flatConfigs as importXFlatConfigs } from 'eslint-plugin-import-x';
+import reactHooks from 'eslint-plugin-react-hooks';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
@@ -23,6 +24,14 @@ export default tseslint.config(
       'import-x/extensions': ['.ts', '.tsx', '.cts', '.mts', '.js', '.jsx', '.cjs', '.mjs'],
       'import-x/parsers': { '@typescript-eslint/parser': ['.ts', '.tsx', '.cts', '.mts'] },
       'import-x/resolver': { typescript: true },
+    },
+  },
+  {
+    files: ['**/*.{js,jsx,ts,tsx}'],
+    plugins: { 'react-hooks': reactHooks },
+    rules: {
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
     },
   },
   {

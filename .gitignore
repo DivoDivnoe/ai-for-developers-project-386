@@ -11,8 +11,8 @@ openapi/
 Thumbs.db
 
 # Environment
-.env
-.env.*
+.env*.local
+backend/.env*
 
 # Logs
 *.log

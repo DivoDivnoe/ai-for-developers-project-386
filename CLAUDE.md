@@ -21,8 +21,10 @@ pnpm workspace из трёх пакетов: `spec/` (TypeSpec), `frontend/` (Re
 - `pnpm spec:compile` / `pnpm spec:watch` — TypeSpec → `openapi/openapi.1.0.0.yaml`.
 - `pnpm -C frontend gen:api` — регенерация `frontend/src/api/schema.d.ts` из OpenAPI.
 - `pnpm -C frontend mock` — поднять Prism-мок на http://localhost:4010 по `openapi/openapi.1.0.0.yaml` (пока бэкенд-заглушка).
+- `pnpm -C frontend dev` — Vite dev-сервер на http://localhost:5173 (прокси `/api` → Prism-мок :4010; `VITE_API_BASE_URL` берётся из `frontend/.env`).
+- `pnpm -C frontend build` / `preview` — production-сборка в `dist/` (`tsc` + `vite build`) и локальный предпросмотр собранного бандла.
 - `pnpm lint` / `pnpm lint:fix`, `pnpm format` / `pnpm format:check`, `pnpm typecheck`, `pnpm test`.
-- `pnpm -C <pkg> verify` — локальная самопроверка пакета (`tsc && eslint .`, тесты добавятся в `verify` при scaffolding). Запускать после завершения задачи в пакете, прежде чем сообщать результат. Сейчас есть в `frontend/`; в `backend/` добавится с появлением src.
+- `pnpm -C <pkg> verify` — локальная самопроверка пакета (во `frontend/`: `tsc` + `eslint .`; тесты добавятся при scaffolding). Запускать после завершения задачи в пакете, прежде чем сообщать результат. Сейчас есть в `frontend/`; в `backend/` добавится с появлением src. `vite build` в `verify` не входит — прод-сборку гоняет CI (`pnpm -r run --if-present build` на каждый PR).
 
 Node 24+ (`.nvmrc`), pnpm 10+ (`packageManager`).
 
@@ -45,4 +47,4 @@ Node 24+ (`.nvmrc`), pnpm 10+ (`packageManager`).
 
 ## Тесты
 
-Решение по тест-раннеру зафиксировано в `TESTING.md` (Vitest, per-package конфиги; шаблоны и обоснование — там). Pre-commit гоняет `lint-staged` + `typecheck`; pre-push — `pnpm test`; CI — `lint && typecheck && test`. Тестов пока нет.
+Решение по тест-раннеру зафиксировано в `TESTING.md` (Vitest, per-package конфиги; шаблоны и обоснование — там). Pre-commit гоняет `lint-staged` + `typecheck`; pre-push — `pnpm test`; CI — `lint && typecheck && test && build` (`pnpm -r run --if-present build`). Тестов пока нет.

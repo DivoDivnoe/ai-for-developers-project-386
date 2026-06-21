@@ -20,6 +20,7 @@ pnpm workspace из трёх пакетов: `spec/` (TypeSpec), `frontend/` (Re
 - `pnpm install` — установить воркспейсы.
 - `pnpm spec:compile` / `pnpm spec:watch` — TypeSpec → `openapi/openapi.1.0.0.yaml`.
 - `pnpm -C frontend gen:api` — регенерация `frontend/src/api/schema.d.ts` из OpenAPI.
+- `pnpm -C frontend mock` — поднять Prism-мок на http://localhost:4010 по `openapi/openapi.1.0.0.yaml` (пока бэкенд-заглушка).
 - `pnpm lint` / `pnpm lint:fix`, `pnpm format` / `pnpm format:check`, `pnpm typecheck`, `pnpm test`.
 - `pnpm -C <pkg> verify` — локальная самопроверка пакета (`tsc && eslint .`, тесты добавятся в `verify` при scaffolding). Запускать после завершения задачи в пакете, прежде чем сообщать результат. Сейчас есть в `frontend/`; в `backend/` добавится с появлением src.
 

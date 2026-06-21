@@ -31,6 +31,7 @@ export default tseslint.config(
       sourceType: 'module',
     },
     rules: {
+      'func-style': ['error', 'expression'],
       'import-x/order': [
         'error',
         {

@@ -4,8 +4,8 @@ import type { components } from './schema';
 
 export type HealthCheck = components['schemas']['HealthCheck'];
 
-export async function getHealth(): Promise<HealthCheck> {
+export const getHealth = async (): Promise<HealthCheck> => {
   const res = await api.GET('/health');
   if (res.error) throw res.error;
   return res.data;
-}
+};

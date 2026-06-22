@@ -12,4 +12,5 @@ export const useSlotsQuery = (params: SlotsParams) =>
   useQuery<Slot[], ApiError>({
     queryKey: queryKeys.slots.list(params),
     queryFn: () => getSlots(params),
+    enabled: params.date !== '',
   });

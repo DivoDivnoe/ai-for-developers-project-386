@@ -21,7 +21,10 @@ export const useCreateAvailabilityMutation = () => {
   const qc = useQueryClient();
   return useMutation<AvailabilityInterval, ApiError, CreateAvailabilityIntervalRequest>({
     mutationFn: createAvailability,
-    onSuccess: () => void qc.invalidateQueries({ queryKey: queryKeys.availability }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: queryKeys.availability });
+      void qc.invalidateQueries({ queryKey: queryKeys.slots.all });
+    },
   });
 };
 
@@ -33,7 +36,10 @@ export const useUpdateAvailabilityMutation = () => {
     { id: string; body: CreateAvailabilityIntervalRequest }
   >({
     mutationFn: ({ id, body }) => updateAvailability(id, body),
-    onSuccess: () => void qc.invalidateQueries({ queryKey: queryKeys.availability }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: queryKeys.availability });
+      void qc.invalidateQueries({ queryKey: queryKeys.slots.all });
+    },
   });
 };
 
@@ -41,6 +47,9 @@ export const useRemoveAvailabilityMutation = () => {
   const qc = useQueryClient();
   return useMutation<void, ApiError, string>({
     mutationFn: removeAvailability,
-    onSuccess: () => void qc.invalidateQueries({ queryKey: queryKeys.availability }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: queryKeys.availability });
+      void qc.invalidateQueries({ queryKey: queryKeys.slots.all });
+    },
   });
 };

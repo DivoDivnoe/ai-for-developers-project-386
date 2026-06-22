@@ -94,10 +94,20 @@ export const ExceptionsTable = ({
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-1">
-                  <Button variant="ghost" size="icon-xs" onClick={() => onEdit(ex)}>
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    aria-label="Редактировать"
+                    onClick={() => onEdit(ex)}
+                  >
                     <Pencil />
                   </Button>
-                  <Button variant="ghost" size="icon-xs" onClick={() => setDeleteTarget(ex)}>
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    aria-label="Удалить"
+                    onClick={() => setDeleteTarget(ex)}
+                  >
                     <Trash2 />
                   </Button>
                 </div>

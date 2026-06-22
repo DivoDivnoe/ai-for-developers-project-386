@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/table';
 import { useRemoveExceptionMutation } from '@/hooks/use-exceptions';
 
-import { formatDate } from './types';
+import { formatDate } from './format-date';
 
 import type { ScheduleException } from '@/api/exceptions';
 

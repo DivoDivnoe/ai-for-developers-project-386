@@ -31,7 +31,7 @@ import { DAY_OF_WEEK_VALUES, DAY_OPTIONS } from './types';
 
 import type { AvailabilityInterval } from '@/api/availability';
 
-const availabilityFormSchema = z
+export const availabilityFormSchema = z
   .object({
     dayOfWeek: z.enum(DAY_OF_WEEK_VALUES),
     startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Неверный формат'),

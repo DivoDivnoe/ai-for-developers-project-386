@@ -56,10 +56,16 @@ export default defineConfig({
 });
 ```
 
-## Зависимости на пакет
+## Зависимости
 
-- Оба: `vitest`, `@vitest/coverage-v8`.
-- Фронт дополнительно: `jsdom`, `@testing-library/react`, `@testing-library/jest-dom`, `@testing-library/user-event`.
+Shared-тулинг (`vitest`, `@vitest/coverage-v8`) живёт в root `devDependencies` — по образцу `eslint`/`typescript`. pnpm hoisting делает root-бинарник доступным в пакетах; `pnpm -C frontend test` находит `vitest` через root `node_modules/.bin`.
+
+Per-package — только специфичное:
+
+- Фронт: `jsdom`, `@testing-library/react`, `@testing-library/jest-dom`, `@testing-library/user-event`.
+- Бэк: ничего сверх shared (env `node` дефолтный).
+
+Обоснование: оба пакета используют одну и ту же версию Vitest — дублировать её в каждом `devDependencies` нет смысла, а единый bump проще делать из root. Конфиги при этом per-package (см. ниже), т.к. потребности env'ов радикально разные.
 
 ## Per-package `package.json` скрипты
 

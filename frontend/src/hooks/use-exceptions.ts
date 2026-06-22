@@ -21,7 +21,10 @@ export const useCreateExceptionMutation = () => {
   const qc = useQueryClient();
   return useMutation<ScheduleException, ApiError, CreateScheduleExceptionRequest>({
     mutationFn: createException,
-    onSuccess: () => void qc.invalidateQueries({ queryKey: queryKeys.exceptions }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: queryKeys.exceptions });
+      void qc.invalidateQueries({ queryKey: queryKeys.slots.all });
+    },
   });
 };
 
@@ -33,7 +36,10 @@ export const useUpdateExceptionMutation = () => {
     { id: string; body: CreateScheduleExceptionRequest }
   >({
     mutationFn: ({ id, body }) => updateException(id, body),
-    onSuccess: () => void qc.invalidateQueries({ queryKey: queryKeys.exceptions }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: queryKeys.exceptions });
+      void qc.invalidateQueries({ queryKey: queryKeys.slots.all });
+    },
   });
 };
 
@@ -41,6 +47,9 @@ export const useRemoveExceptionMutation = () => {
   const qc = useQueryClient();
   return useMutation<void, ApiError, string>({
     mutationFn: removeException,
-    onSuccess: () => void qc.invalidateQueries({ queryKey: queryKeys.exceptions }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: queryKeys.exceptions });
+      void qc.invalidateQueries({ queryKey: queryKeys.slots.all });
+    },
   });
 };

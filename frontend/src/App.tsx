@@ -1,12 +1,19 @@
-import { toast } from 'sonner';
+import { createBrowserRouter } from 'react-router-dom';
 
-import { Button } from '@/components/ui/button';
-import { Toaster } from '@/components/ui/sonner';
+import { AppLayout } from '@/components/layout/app-layout';
+import { AvailabilityPage } from '@/pages/availability';
+import { BookingPage } from '@/pages/booking';
+import { BookingsListPage } from '@/pages/bookings-list';
+import { ExceptionsPage } from '@/pages/exceptions';
 
-export const App = () => (
-  <main className="p-8">
-    <h1 className="text-2xl font-semibold">Call Booking</h1>
-    <Button onClick={() => toast.success('UI работает')}>Тест</Button>
-    <Toaster />
-  </main>
-);
+export const router = createBrowserRouter([
+  {
+    element: <AppLayout />,
+    children: [
+      { path: '/', element: <BookingPage /> },
+      { path: '/bookings', element: <BookingsListPage /> },
+      { path: '/availability', element: <AvailabilityPage /> },
+      { path: '/exceptions', element: <ExceptionsPage /> },
+    ],
+  },
+]);

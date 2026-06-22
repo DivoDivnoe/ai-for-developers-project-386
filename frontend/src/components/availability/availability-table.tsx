@@ -90,10 +90,20 @@ export const AvailabilityTable = ({
               <TableCell>{interval.endTime}</TableCell>
               <TableCell>
                 <div className="flex items-center gap-1">
-                  <Button variant="ghost" size="icon-xs" onClick={() => onEdit(interval)}>
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    aria-label="Редактировать"
+                    onClick={() => onEdit(interval)}
+                  >
                     <Pencil />
                   </Button>
-                  <Button variant="ghost" size="icon-xs" onClick={() => setDeleteTarget(interval)}>
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    aria-label="Удалить"
+                    onClick={() => setDeleteTarget(interval)}
+                  >
                     <Trash2 />
                   </Button>
                 </div>

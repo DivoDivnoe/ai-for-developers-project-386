@@ -10,6 +10,9 @@ openapi/
 .DS_Store
 Thumbs.db
 
+# Playwright MCP artifacts
+.playwright-mcp/
+
 # Environment
 .env*.local
 backend/.env*

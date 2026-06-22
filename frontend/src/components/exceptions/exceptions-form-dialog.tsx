@@ -19,7 +19,7 @@ import { useCreateExceptionMutation, useUpdateExceptionMutation } from '@/hooks/
 
 import type { ScheduleException } from '@/api/exceptions';
 
-const exceptionFormSchema = z
+export const exceptionFormSchema = z
   .object({
     startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Неверный формат'),
     endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Неверный формат'),

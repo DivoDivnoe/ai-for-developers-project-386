@@ -15,6 +15,8 @@ Call Booking — учебный проект по мотивам Cal.com для 
 
 pnpm workspace из трёх пакетов: `spec/` (TypeSpec), `frontend/` (React 19 + TanStack Query + openapi-fetch), `backend/` (пока заглушка). Корневой тулинг общий; конфиги пакетов наследуют `tsconfig.base.json`.
 
+ESLint-конфиги — per-package с общим base: `eslint.config.base.mjs` (shared: TS, import-order, prettier, prefer-arrow, func-style) расширяется через spread в `frontend/eslint.config.mjs` (React-стек + `@/`-резолвер + override для `src/components/ui/`) и будущем `backend/eslint.config.mjs`. Корневой `eslint.config.mjs` — только для root-level `.mjs` файлов (игнорирует `frontend/**`, `backend/**`). Общие правила добавлять в base, пакет-специфичные — в конфиг пакета.
+
 ## Команды (из корня)
 
 - `pnpm install` — установить воркспейсы.
@@ -24,7 +26,7 @@ pnpm workspace из трёх пакетов: `spec/` (TypeSpec), `frontend/` (Re
 - `pnpm -C frontend dev` — Vite dev-сервер на http://localhost:5173 (прокси `/api` → Prism-мок :4010; `VITE_API_BASE_URL` берётся из `frontend/.env`).
 - `pnpm -C frontend build` / `preview` — production-сборка в `dist/` (`tsc` + `vite build`) и локальный предпросмотр собранного бандла.
 - `pnpm lint` / `pnpm lint:fix`, `pnpm format` / `pnpm format:check`, `pnpm typecheck`, `pnpm test`.
-- `pnpm -C <pkg> verify` — локальная самопроверка пакета (во `frontend/`: `tsc` + `eslint .`; тесты добавятся при scaffolding). Запускать после завершения задачи в пакете, прежде чем сообщать результат. Сейчас есть в `frontend/`; в `backend/` добавится с появлением src. `vite build` в `verify` не входит — прод-сборку гоняет CI (`pnpm -r run --if-present build` на каждый PR).
+- `pnpm -C <pkg> verify` — локальная самопроверка пакета (во `frontend/`: `tsc` + `eslint .` + `vitest run`). Запускать после завершения задачи в пакете, прежде чем сообщать результат. Сейчас есть в `frontend/`; в `backend/` добавится с появлением src. `vite build` в `verify` не входит — прод-сборку гоняет CI (`pnpm -r run --if-present build` на каждый PR).
 
 Node 24+ (`.nvmrc`), pnpm 10+ (`packageManager`).
 
@@ -44,6 +46,17 @@ Node 24+ (`.nvmrc`), pnpm 10+ (`packageManager`).
 - `hooks/use-<resource>.ts` — обёртки React Query. Мутации инвалидируют связанные ключи (например, создание бронирования инвалидирует и `bookings`, и `slots`).
 
 `queryClient.ts` экспортирует `createQueryClient()` — фабрику, не синглтон.
+
+## UI-слой фронтенда
+
+Компоненты — shadcn/ui на Tailwind v4.
+
+- `frontend/src/components/ui/` — исходники компонентов, **править свободно**. Это не npm-зависимость, код в репо.
+- Новые компоненты: `pnpm dlx shadcn@latest add <name> -c frontend`. После добавления прогнать `pnpm lint --fix` и `pnpm format` — это приводит сгенерированный код к стайлгайду (стрелочные функции через `eslint-plugin-prefer-arrow-functions`, кавычки/point-free через prettier, порядок импортов через `import-x/order`).
+- Хелпер слияния классов — `cn()` из `@/lib/utils`.
+- Тема — CSS-переменные в `frontend/src/index.css`. **Не хардкодить цвета** (`bg-zinc-900`), использовать токены (`bg-background`, `text-foreground`, `bg-primary`).
+- Иконки — `lucide-react`. Тосты — `sonner` + `<Toaster />` из `@/components/ui/sonner` в корне.
+- Формы (когда понадобятся) — `react-hook-form` + `zod` + shadcn-компонент `form`.
 
 ## Тесты
 

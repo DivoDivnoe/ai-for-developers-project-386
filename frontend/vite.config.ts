@@ -1,3 +1,4 @@
+import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';
 
@@ -6,7 +7,7 @@ const MOCK_PORT = 4010;
 const MOCK_TARGET = `http://localhost:${MOCK_PORT}`;
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
   resolve: {
     tsconfigPaths: true,
   },

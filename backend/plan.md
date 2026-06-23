@@ -167,20 +167,21 @@ backend/
 
 Верификация: `pnpm -C backend test` — 32 зелёных
 
-#### 5.3 Юнит-тесты createBooking
+#### 5.3 Юнит-тесты createBooking ✓
 
-Файл `test/services/booking.test.ts` — 8 тестов. Мок store через `vi.fn()`, `vi.setSystemTime()` для детерминизма past-date проверки.
+Файл `test/services/booking.test.ts` — 9 тестов. Мок store через `vi.fn()`, `vi.setSystemTime()` для детерминизма past-date проверки.
 
 1. Успешное создание: валидный будущий `startAt`, слот существует → `BookingRecord` с `status: "confirmed"`, `store.createBooking` вызван один раз
 2. Букинг с комментарием: `comment: "Need projector"` → поле `comment` есть в результате
 3. Букинг без комментария: `comment` не передан → поле `comment` отсутствует в результате
-4. Букинг в прошлом: `startAt` = 2020 год → `HTTPException` 409 "Cannot book a slot in the past"
-5. Букинг прямо сейчас: `vi.setSystemTime` + `startAt` равен текущему времени → 409 (граничное `<=`)
-6. Слот недоступен: `startAt` не совпадает ни с одним сгенерированным слотом → 409 "This time slot is not available"
-7. Слот занят: между генерацией и проверкой появился confirmed-букинг на это время → 409
-8. Уникальность ID: два вызова → разные UUID
+4. Букинг через исключение: `listAvailability` пуст, но частичное исключение даёт окно → слот доступен — страхует передачу `exceptions` в `generateSlots`
+5. Букинг в прошлом: `startAt` = 2020 год → `HTTPException` 409 "Cannot book a slot in the past"
+6. Букинг прямо сейчас: `vi.setSystemTime` + `startAt` равен текущему времени → 409 (граничное `<=`)
+7. Слот недоступен: `startAt` не совпадает ни с одним сгенерированным слотом → 409 "This time slot is not available"
+8. Слот занят: confirmed-букинг занимает слот → `generateSlots` фильтрует → 409
+9. Уникальность ID: два вызова → разные UUID
 
-Верификация: `pnpm -C backend test` — 40 зелёных (32 + 8)
+Верификация: `pnpm -C backend test` — 41 зелёный (32 + 9)
 
 #### 5.4 Интеграционные тесты — health + owner
 
@@ -189,7 +190,7 @@ backend/
 - [ ] `test/routes/health.test.ts` — 1 тест: `GET /health` → 200 `{ status: "ok" }`
 - [ ] `test/routes/owner.test.ts` — 1 тест: `GET /owner` → 200 `{ name: "Alex Petrov", email: "alex@callbooking.demo" }`
 
-Верификация: `pnpm -C backend test` — 42 зелёных
+Верификация: `pnpm -C backend test` — 43 зелёных
 
 #### 5.5 Интеграционные тесты — slots
 
@@ -203,7 +204,7 @@ backend/
 6. Пустая доступность: без seed, валидный запрос → 200 `[]`
 7. Исключение блокирует день: seed доступность + full-day исключение на ту же дату → 200 `[]`
 
-Верификация: `pnpm -C backend test` — 49 зелёных
+Верификация: `pnpm -C backend test` — 50 зелёных
 
 #### 5.6 Интеграционные тесты — bookings
 
@@ -225,7 +226,7 @@ backend/
 14. `DELETE /bookings/:id` невалидный uuid → 400
 15. Связка: POST создаёт букинг → GET /bookings его возвращает
 
-Верификация: `pnpm -C backend test` — 64 зелёных
+Верификация: `pnpm -C backend test` — 65 зелёных
 
 #### 5.7 Интеграционные тесты — availability
 
@@ -247,7 +248,7 @@ backend/
 14. `PUT /availability/:id` невалидный uuid → 400
 15. Связка: DELETE → GET не возвращает удалённый
 
-Верификация: `pnpm -C backend test` — 79 зелёных
+Верификация: `pnpm -C backend test` — 80 зелёных
 
 #### 5.8 Интеграционные тесты — exceptions
 
@@ -269,7 +270,7 @@ backend/
 14. `DELETE /exceptions/:id` невалидный uuid → 400
 15. `PUT /exceptions/:id` невалидный uuid → 400
 
-Верификация: `pnpm -C backend test` — 94 зелёных
+Верификация: `pnpm -C backend test` — 95 зелёных
 
 ## Верификация
 

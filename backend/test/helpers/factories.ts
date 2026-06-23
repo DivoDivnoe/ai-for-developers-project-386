@@ -1,9 +1,10 @@
+import { MONDAY, MONDAY_0900 } from "./constants.js";
+
 import type {
   AvailabilityIntervalRecord,
   BookingRecord,
   ScheduleExceptionRecord,
 } from "../../src/store/types.js";
-import { MONDAY, MONDAY_0900 } from "./constants.js";
 
 export const createTestAvailability = (
   overrides?: Partial<AvailabilityIntervalRecord>,

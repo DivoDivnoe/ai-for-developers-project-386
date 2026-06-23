@@ -80,13 +80,18 @@ export const generateSlots = (input: GenerateSlotsInput): Slot[] => {
     }
   }
 
+  // Deduplicate slots by startAt (overlapping time windows can produce duplicates)
+  const uniqueSlots = [
+    ...new Map(allSlots.map((s) => [s.startAt, s])).values(),
+  ];
+
   // Exclude slots that overlap with confirmed bookings
   // Overlap: A_start < B_end AND B_start < A_end
   const confirmedBookings = bookings.filter(
     (b) => b.status === "confirmed",
   );
 
-  const availableSlots = allSlots.filter((slot) => {
+  const availableSlots = uniqueSlots.filter((slot) => {
     return !confirmedBookings.some((booking) => {
       const bookingEnd = addMinutes(
         parseISO(booking.startAt),

@@ -192,9 +192,9 @@ backend/
 
 Верификация: `pnpm -C backend test` — 43 зелёных
 
-#### 5.5 Интеграционные тесты — slots
+#### 5.5 Интеграционные тесты — slots ✓
 
-Файл `test/routes/slots.test.ts` — 7 тестов. Seed store через `store.createAvailability()`, запрос через `app.request()`.
+- [x] Файл `test/routes/slots.test.ts` — 7 тестов. Seed store через `store.createAvailability()`, запрос через `app.request()`.
 
 1. Валидный запрос: seed Monday 09:00–10:00, `GET /slots?date=2026-06-22&duration=30` → 200, массив Slot
 2. Нет query date: `GET /slots?duration=30` → 400 (Zod)
@@ -206,9 +206,9 @@ backend/
 
 Верификация: `pnpm -C backend test` — 50 зелёных
 
-#### 5.6 Интеграционные тесты — bookings
+#### 5.6 Интеграционные тесты — bookings ✓
 
-Файл `test/routes/bookings.test.ts` — 15 тестов. Для POST нужно предварительно seed-ить availability на нужный день.
+- [x] Файл `test/routes/bookings.test.ts` — 15 тестов. Для POST нужно предварительно seed-ить availability на нужный день.
 
 1. `GET /bookings` пустой store → 200 `[]`
 2. `GET /bookings` с записями: пре-insert 2 букинга → 200, массив из 2

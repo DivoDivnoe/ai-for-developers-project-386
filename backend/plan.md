@@ -108,9 +108,156 @@ backend/
 
 ### Шаг 5: Тесты
 
-- [ ] `test/services/slots.test.ts` — юнит-тесты generateSlots
-- [ ] `test/services/booking.test.ts` — юнит-тесты createBooking
-- [ ] `test/routes/` — интеграционные тесты через `app.request()`
+**Решения:**
+
+- `process.env.TZ = "UTC"` в `test/setup.ts` — детерминизм дат в тестах
+- `generateSlots` тестируется как чистая функция: без store, вход — plain arrays
+- `createBooking` тестируется с моком store через `vi.fn()` + `vi.setSystemTime()` для past-date проверок
+- Интеграционные тесты: `createApp(createStore())` + `app.request()`, seed данных через store напрямую
+- Фабрики: `createTestAvailability(overrides?)`, `createTestException(overrides?)`, `createTestBooking(overrides?)` с разумными дефолтами и optional overrides. Дефолты: id через `crypto.randomUUID()`, `dayOfWeek: "monday"`, времена `09:00`–`17:00`. У `createTestException` дефолт partial-day (времена заданы), full-day через `{ startTime: undefined, endTime: undefined }`. У `createTestBooking` `createdAt` — фиксированная константа, не `new Date()`
+- Константы дат: `MONDAY = "2026-06-22"`, `TUESDAY = "2026-06-23"` etc. — фиксированные, не `new Date()`-производные
+
+#### 5.1 Инфраструктура тестов
+
+- [x] `test/setup.ts` — `process.env.TZ = "UTC"`
+- [x] `vitest.config.ts` — добавить `setupFiles: ['./test/setup.ts']`
+- [x] `test/helpers/constants.ts` — `MONDAY = "2026-06-22"`, `TUESDAY = "2026-06-23"`, `SATURDAY = "2026-06-27"`, `MONDAY_0900 = "2026-06-22T09:00:00.000Z"`, `MONDAY_0930 = "2026-06-22T09:30:00.000Z"`, `FAR_FUTURE_DATE = "2027-01-01"`, `PAST_DATE = "2020-01-01T10:00:00.000Z"`
+- [x] `test/helpers/factories.ts` — `createTestAvailability(overrides?)`, `createTestException(overrides?)`, `createTestBooking(overrides?)`. Дефолты: id через `crypto.randomUUID()`, `dayOfWeek: "monday"`, `startTime: "09:00"`, `endTime: "17:00"`. У `createTestException` дефолт partial-day (времена заданы), full-day через `{ startTime: undefined, endTime: undefined }`. У `createTestBooking` `createdAt: "2026-06-20T00:00:00.000Z"` (фиксированная константа), `status: "confirmed"`
+
+Верификация: `pnpm -C backend test` (0 тестов, инфраструктура готова)
+
+#### 5.2 Юнит-тесты generateSlots
+
+Файл `test/services/slots.test.ts` — 22 теста. Чистая функция, вход — `{ date, duration, availability, exceptions, bookings }`, выход — `Slot[]`.
+
+1. Пустой вход (нет доступности, нет исключений) → `[]`
+2. Одно окно доступности, день совпадает (Monday 09:00–10:00, duration=30) → 2 слота
+3. Окно доступности для другого дня недели → `[]`
+4. 15-минутная длительность (09:00–09:45) → 3 слота
+5. Несколько окон доступности в один день → слоты из всех окон
+6. Сортировка по startAt (несколько окон, порядок проверяется явно)
+7. Полнодневное исключение (без startTime/endTime) блокирует день → `[]`
+8. Частичное исключение переопределяет регулярную доступность (вместо 09:00–17:00 слоты только 10:00–14:00)
+9. Несколько частичных исключений на одну дату → слоты из всех
+10. Исключение вне диапазона дат игнорируется (Monday availability, Tuesday exception)
+11. Исключение точно на startDate — применяется
+12. Исключение в середине многодневного диапазона — применяется
+13. Все слоты забронированы (confirmed) → `[]`
+14. Часть слотов забронирована → только свободные
+15. Cancelled-букинги не блокируют слоты
+16. Перекрытие: букинг точно совпадает со слотом → слот исключён
+17. Перекрытие: букинг начинается раньше слота, заканчивается внутри → слот исключён
+18. Перекрытие: букинг начинается внутри слота, заканчивается позже → слот исключён
+19. Перекрытие: букинг полностью накрывает слот → слот исключён
+20. Без перекрытия: смежные слоты (09:00–09:30 и 09:30–10:00) → оба свободны
+21. Слот не выходит за границу окна (09:00–09:45, duration=30) → только 1 слот, 09:30–10:00 не создаётся
+22. Блокирующее исключение (без времён) + частичное на ту же дату → `[]` (блокирующее приоритетнее)
+
+Верификация: `pnpm -C backend test` — 22 зелёных
+
+#### 5.3 Юнит-тесты createBooking
+
+Файл `test/services/booking.test.ts` — 8 тестов. Мок store через `vi.fn()`, `vi.setSystemTime()` для детерминизма past-date проверки.
+
+1. Успешное создание: валидный будущий `startAt`, слот существует → `BookingRecord` с `status: "confirmed"`, `store.createBooking` вызван один раз
+2. Букинг с комментарием: `comment: "Need projector"` → поле `comment` есть в результате
+3. Букинг без комментария: `comment` не передан → поле `comment` отсутствует в результате
+4. Букинг в прошлом: `startAt` = 2020 год → `HTTPException` 409 "Cannot book a slot in the past"
+5. Букинг прямо сейчас: `vi.setSystemTime` + `startAt` равен текущему времени → 409 (граничное `<=`)
+6. Слот недоступен: `startAt` не совпадает ни с одним сгенерированным слотом → 409 "This time slot is not available"
+7. Слот занят: между генерацией и проверкой появился confirmed-букинг на это время → 409
+8. Уникальность ID: два вызова → разные UUID
+
+Верификация: `pnpm -C backend test` — 30 зелёных (22 + 8)
+
+#### 5.4 Интеграционные тесты — health + owner
+
+Самые простые, проверяют паттерн `createApp(createStore())` + `app.request()`.
+
+- [ ] `test/routes/health.test.ts` — 1 тест: `GET /health` → 200 `{ status: "ok" }`
+- [ ] `test/routes/owner.test.ts` — 1 тест: `GET /owner` → 200 `{ name: "Alex Petrov", email: "alex@callbooking.demo" }`
+
+Верификация: `pnpm -C backend test` — 32 зелёных
+
+#### 5.5 Интеграционные тесты — slots
+
+Файл `test/routes/slots.test.ts` — 7 тестов. Seed store через `store.createAvailability()`, запрос через `app.request()`.
+
+1. Валидный запрос: seed Monday 09:00–10:00, `GET /slots?date=2026-06-22&duration=30` → 200, массив Slot
+2. Нет query date: `GET /slots?duration=30` → 400 (Zod)
+3. Нет query duration: `GET /slots?date=2026-06-22` → 400 (Zod)
+4. Невалидный duration: `?date=2026-06-22&duration=45` → 400 (Zod — только 15 или 30)
+5. Невалидный date: `?date=not-a-date&duration=30` → 400 (Zod)
+6. Пустая доступность: без seed, валидный запрос → 200 `[]`
+7. Исключение блокирует день: seed доступность + full-day исключение на ту же дату → 200 `[]`
+
+Верификация: `pnpm -C backend test` — 39 зелёных
+
+#### 5.6 Интеграционные тесты — bookings
+
+Файл `test/routes/bookings.test.ts` — 15 тестов. Для POST нужно предварительно seed-ить availability на нужный день.
+
+1. `GET /bookings` пустой store → 200 `[]`
+2. `GET /bookings` с записями: пре-insert 2 букинга → 200, массив из 2
+3. `POST /bookings` валидный: seed availability, передать валидное тело → 200 Booking (`status: "confirmed"`)
+4. `POST /bookings` с комментарием → 200, `comment` в ответе
+5. `POST /bookings` без email → 400
+6. `POST /bookings` невалидный startAt → 400
+7. `POST /bookings` past date → 409
+8. `POST /bookings` слот недоступен (нет availability) → 409
+9. `GET /bookings/:id` найден → 200
+10. `GET /bookings/:id` не найден → 404
+11. `GET /bookings/:id` невалидный uuid → 400
+12. `DELETE /bookings/:id` успех → 200, `status: "cancelled"`
+13. `DELETE /bookings/:id` не найден → 404
+14. `DELETE /bookings/:id` невалидный uuid → 400
+15. Связка: POST создаёт букинг → GET /bookings его возвращает
+
+Верификация: `pnpm -C backend test` — 54 зелёных
+
+#### 5.7 Интеграционные тесты — availability
+
+Файл `test/routes/availability.test.ts` — 15 тестов.
+
+1. `GET /availability` пустой → 200 `[]`
+2. `GET /availability` с записями → 200, массив
+3. `POST /availability` валидный → 200, `AvailabilityInterval` с UUID
+4. `POST /availability` без dayOfWeek → 400
+5. `POST /availability` невалидный dayOfWeek → 400
+6. `POST /availability` endTime ≤ startTime → 400 (superRefine)
+7. `POST /availability` без startTime → 400
+8. `PUT /availability/:id` валидный: пре-insert, изменить времена → 200 обновлённый
+9. `PUT /availability/:id` не найден → 404
+10. `PUT /availability/:id` невалидное тело → 400
+11. `DELETE /availability/:id` успех → 204, тело пустое
+12. `DELETE /availability/:id` не найден → 404
+13. `DELETE /availability/:id` невалидный uuid → 400
+14. `PUT /availability/:id` невалидный uuid → 400
+15. Связка: DELETE → GET не возвращает удалённый
+
+Верификация: `pnpm -C backend test` — 69 зелёных
+
+#### 5.8 Интеграционные тесты — exceptions
+
+Файл `test/routes/exceptions.test.ts` — 15 тестов.
+
+1. `GET /exceptions` пустой → 200 `[]`
+2. `GET /exceptions` с записями → 200, массив
+3. `POST /exceptions` full-day (без startTime/endTime) → 200, поля времени undefined
+4. `POST /exceptions` partial-day (с startTime/endTime) → 200
+5. `POST /exceptions` с reason → 200, reason заполнен
+6. `POST /exceptions` endDate < startDate → 400 (superRefine)
+7. `POST /exceptions` endTime ≤ startTime (обе указаны) → 400 (superRefine)
+8. `POST /exceptions` без startDate → 400
+9. `PUT /exceptions/:id` валидный: пре-insert, изменить reason → 200 обновлённый
+10. `PUT /exceptions/:id` не найден → 404
+11. `PUT /exceptions/:id` невалидное тело → 400
+12. `DELETE /exceptions/:id` успех → 204
+13. `DELETE /exceptions/:id` не найден → 404
+14. `DELETE /exceptions/:id` невалидный uuid → 400
+15. `PUT /exceptions/:id` невалидный uuid → 400
+
+Верификация: `pnpm -C backend test` — 84 зелёных
 
 ## Верификация
 

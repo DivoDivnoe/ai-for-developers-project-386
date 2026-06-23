@@ -93,18 +93,18 @@ backend/
 - [x] `spec/main.tsp` — добавлен `@format("email")` на 3 email-поля (Owner, Booking, CreateBookingRequest)
 - [x] Перегенерированы `openapi/openapi.1.0.0.yaml`, `backend/generated/schema.ts`, `frontend/src/api/schema.d.ts`
 
-### Шаг 4: Роуты (в порядке сложности)
+### Шаг 4: Роуты ✓
 
-1. [ ] `health.ts` — `GET /health` → `{ status: "ok" }`
-2. [ ] `owner.ts` — `GET /owner` → статичные данные владельца
-3. [ ] `availability.ts` — CRUD для интервалов доступности
-4. [ ] `exceptions.ts` — CRUD для исключений
-5. [ ] `services/slots.ts` — `generateSlots()` — генерация слотов
-6. [ ] `slots.ts` — `GET /slots?date=&duration=`
-7. [ ] `services/booking.ts` — проверка конфликтов + сохранение
-8. [ ] `bookings.ts` — CRUD + cancel
-9. [ ] `app.ts` — сборка createApp
-10. [ ] `index.ts` — точка входа
+1. [x] `health.ts` — `GET /health` → `{ status: "ok" }`
+2. [x] `owner.ts` — `GET /owner` → статичные данные владельца
+3. [x] `availability.ts` — CRUD для интервалов доступности
+4. [x] `exceptions.ts` — CRUD для исключений
+5. [x] `services/slots.ts` — `generateSlots()` — генерация слотов
+6. [x] `slots.ts` — `GET /slots?date=&duration=`
+7. [x] `services/booking.ts` — проверка конфликтов + сохранение
+8. [x] `bookings.ts` — CRUD + cancel
+9. [x] `app.ts` — сборка createApp
+10. [x] `index.ts` — точка входа
 
 ### Шаг 5: Тесты
 

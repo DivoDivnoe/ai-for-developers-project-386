@@ -1,7 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+
 import { createBooking } from "../../src/services/booking.js";
-import { createTestAvailability, createTestBooking, createTestException } from "../helpers/factories.js";
 import { MONDAY_0900, MONDAY, PAST_DATE } from "../helpers/constants.js";
+import { createTestAvailability, createTestBooking, createTestException } from "../helpers/factories.js";
+
 import type {
   Store,
   AvailabilityIntervalRecord,

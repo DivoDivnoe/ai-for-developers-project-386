@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+
 import { createApp } from "../../src/app.js";
 import { createStore } from "../../src/store/store.js";
 

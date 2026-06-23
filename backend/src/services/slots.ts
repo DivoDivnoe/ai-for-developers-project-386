@@ -26,10 +26,50 @@ interface GenerateSlotsInput {
   availability: AvailabilityIntervalRecord[];
   exceptions: ScheduleExceptionRecord[];
   bookings: BookingRecord[];
+  now?: Date;
 }
 
+interface TimeWindow {
+  startTime: string;
+  endTime: string;
+}
+
+// Subtract one time window from another on the same date.
+// Returns the remaining intervals (0, 1, or 2 pieces).
+const subtractWindow = (
+  window: TimeWindow,
+  subStart: string,
+  subEnd: string,
+  baseDate: Date,
+): TimeWindow[] => {
+  const wStart = parse(window.startTime, "HH:mm", baseDate);
+  const wEnd = parse(window.endTime, "HH:mm", baseDate);
+  const sStart = parse(subStart, "HH:mm", baseDate);
+  const sEnd = parse(subEnd, "HH:mm", baseDate);
+
+  // No overlap
+  if (sEnd <= wStart || sStart >= wEnd) return [window];
+
+  // Sub fully covers window → nothing left
+  if (sStart <= wStart && sEnd >= wEnd) return [];
+
+  // Gap on the left: [wStart, sStart]
+  const left: TimeWindow | null =
+    sStart > wStart
+      ? { startTime: window.startTime, endTime: subStart }
+      : null;
+
+  // Gap on the right: [sEnd, wEnd]
+  const right: TimeWindow | null =
+    sEnd < wEnd
+      ? { startTime: subEnd, endTime: window.endTime }
+      : null;
+
+  return [left, right].filter((v): v is TimeWindow => v !== null);
+};
+
 export const generateSlots = (input: GenerateSlotsInput): Slot[] => {
-  const { date, duration, availability, exceptions, bookings } = input;
+  const { date, duration, availability, exceptions, bookings, now = new Date() } = input;
   const targetDate = parseISO(date);
   const dayName = DAY_NAMES[getDay(targetDate)];
 
@@ -44,23 +84,26 @@ export const generateSlots = (input: GenerateSlotsInput): Slot[] => {
   );
   if (hasBlockingException) return [];
 
-  // Exception with times overrides regular availability
+  // Start with regular availability windows for this day
+  const availabilityWindows: TimeWindow[] = availability
+    .filter((a) => a.dayOfWeek === dayName)
+    .map((a) => ({ startTime: a.startTime, endTime: a.endTime }));
+
+  // Partial exceptions (with both times) subtract from availability
   const exceptionsWithTimes = applicableExceptions.filter(
     (e) => e.startTime && e.endTime,
   );
 
-  let timeWindows: Array<{ startTime: string; endTime: string }>;
-
-  if (exceptionsWithTimes.length > 0) {
-    timeWindows = exceptionsWithTimes.map((e) => ({
-      startTime: e.startTime!,
-      endTime: e.endTime!,
-    }));
-  } else {
-    timeWindows = availability
-      .filter((a) => a.dayOfWeek === dayName)
-      .map((a) => ({ startTime: a.startTime, endTime: a.endTime }));
-  }
+  const timeWindows =
+    exceptionsWithTimes.length > 0
+      ? exceptionsWithTimes.reduce<TimeWindow[]>(
+          (windows, ex) =>
+            windows.flatMap((w) =>
+              subtractWindow(w, ex.startTime!, ex.endTime!, targetDate),
+            ),
+          availabilityWindows,
+        )
+      : availabilityWindows;
 
   // Generate all possible slots within each time window
   const allSlots: Slot[] = [];
@@ -86,7 +129,6 @@ export const generateSlots = (input: GenerateSlotsInput): Slot[] => {
   ];
 
   // Exclude slots that overlap with confirmed bookings
-  // Overlap: A_start < B_end AND B_start < A_end
   const confirmedBookings = bookings.filter(
     (b) => b.status === "confirmed",
   );
@@ -101,7 +143,12 @@ export const generateSlots = (input: GenerateSlotsInput): Slot[] => {
     });
   });
 
-  availableSlots.sort((a, b) => a.startAt.localeCompare(b.startAt));
+  // Exclude slots in the past
+  const futureSlots = availableSlots.filter(
+    (slot) => slot.startAt >= now.toISOString(),
+  );
 
-  return availableSlots;
+  futureSlots.sort((a, b) => a.startAt.localeCompare(b.startAt));
+
+  return futureSlots;
 };

@@ -18,6 +18,7 @@ slotsRoute.get("/", zValidator("query", getSlotsQuery), (c) => {
     availability: c.var.store.listAvailability(),
     exceptions: c.var.store.listExceptions(),
     bookings: c.var.store.listBookings(),
+    now: new Date(),
   });
 
   return c.json(slots);

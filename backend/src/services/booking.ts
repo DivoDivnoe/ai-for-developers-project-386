@@ -31,6 +31,7 @@ export const createBooking = (store: Store, input: CreateBookingInput): BookingR
     availability: store.listAvailability(),
     exceptions: store.listExceptions(),
     bookings: store.listBookings(),
+    now: new Date(),
   });
 
   if (!availableSlots.some((slot) => slot.startAt === startAt)) {

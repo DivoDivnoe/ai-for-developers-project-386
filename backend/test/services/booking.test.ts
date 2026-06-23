@@ -104,7 +104,7 @@ describe("createBooking", () => {
     expect(result.comment).toBeUndefined();
   });
 
-  it("creates booking via exception when regular availability is empty", () => {
+  it("throws 409 when trying to book via exception without regular availability", () => {
     const store = mockStore({
       listAvailability: [],
       listExceptions: [
@@ -117,11 +117,10 @@ describe("createBooking", () => {
       ],
     });
 
-    const result = createBooking(store, validInput);
-
-    expect(result.status).toBe("confirmed");
-    expect(result.startAt).toBe(MONDAY_0900);
-    expect(store.createBooking).toHaveBeenCalledOnce();
+    // Partial exceptions only subtract from availability, they don't create it
+    expect(() => createBooking(store, validInput)).toThrow(
+      "This time slot is not available",
+    );
   });
 
   it("throws 409 when booking in the past", () => {

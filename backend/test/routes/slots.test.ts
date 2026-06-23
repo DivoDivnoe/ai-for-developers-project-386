@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 import { createApp } from "../../src/app.js";
 import { createStore } from "../../src/store/store.js";
@@ -6,6 +6,15 @@ import { MONDAY, MONDAY_0900, MONDAY_0930 } from "../helpers/constants.js";
 import { createTestAvailability, createTestException } from "../helpers/factories.js";
 
 describe("GET /slots", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-22T08:00:00.000Z"));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it("returns slots for valid request with seeded availability", async () => {
     const store = createStore();
     store.createAvailability(

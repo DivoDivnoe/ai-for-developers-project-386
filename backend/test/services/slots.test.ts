@@ -4,6 +4,9 @@ import { generateSlots } from "../../src/services/slots.js";
 import { MONDAY, TUESDAY, MONDAY_0900, MONDAY_0930 } from "../helpers/constants.js";
 import { createTestAvailability, createTestException, createTestBooking } from "../helpers/factories.js";
 
+// Use a date well before test dates so test slots are treated as "future"
+const FAR_PAST = new Date("2020-01-01");
+
 describe("generateSlots", () => {
   // 1
   it("returns empty array when there is no availability", () => {
@@ -13,6 +16,7 @@ describe("generateSlots", () => {
       availability: [],
       exceptions: [],
       bookings: [],
+      now: FAR_PAST,
     });
 
     expect(result).toEqual([]);
@@ -28,6 +32,7 @@ describe("generateSlots", () => {
       availability,
       exceptions: [],
       bookings: [],
+      now: FAR_PAST,
     });
 
     expect(result).toHaveLength(2);
@@ -45,6 +50,7 @@ describe("generateSlots", () => {
       availability,
       exceptions: [],
       bookings: [],
+      now: FAR_PAST,
     });
 
     expect(result).toEqual([]);
@@ -60,6 +66,7 @@ describe("generateSlots", () => {
       availability,
       exceptions: [],
       bookings: [],
+      now: FAR_PAST,
     });
 
     expect(result).toHaveLength(3);
@@ -78,6 +85,7 @@ describe("generateSlots", () => {
       availability,
       exceptions: [],
       bookings: [],
+      now: FAR_PAST,
     });
 
     // 09:00-10:00 → 2 slots, 14:00-15:00 → 2 slots
@@ -99,6 +107,7 @@ describe("generateSlots", () => {
       availability,
       exceptions: [],
       bookings: [],
+      now: FAR_PAST,
     });
 
     expect(result[0].startAt).toContain("T08:00");
@@ -116,13 +125,14 @@ describe("generateSlots", () => {
       availability,
       exceptions,
       bookings: [],
+      now: FAR_PAST,
     });
 
     expect(result).toEqual([]);
   });
 
-  // 8
-  it("uses partial exception time window instead of regular availability", () => {
+  // 8 — Partial exception subtracts from regular availability
+  it("subtracts partial exception time window from regular availability", () => {
     const availability = [createTestAvailability()]; // 09:00–17:00
     const exceptions = [createTestException({ startTime: "10:00", endTime: "14:00" })];
 
@@ -132,16 +142,19 @@ describe("generateSlots", () => {
       availability,
       exceptions,
       bookings: [],
+      now: FAR_PAST,
     });
 
-    // 10:00–14:00 → 8 slots of 30 min
+    // 09:00–10:00 → 2 slots, 14:00–17:00 → 6 slots
     expect(result).toHaveLength(8);
-    expect(result[0].startAt).toContain("T10:00");
-    expect(result[result.length - 1].endAt).toContain("T14:00");
+    expect(result[0].startAt).toContain("T09:00");
+    expect(result[1].startAt).toContain("T09:30");
+    expect(result[2].startAt).toContain("T14:00");
+    expect(result[result.length - 1].endAt).toContain("T17:00");
   });
 
-  // 9
-  it("generates slots from multiple partial exceptions", () => {
+  // 9 — Partial exceptions without availability produce no slots
+  it("returns empty when partial exceptions exist but there is no availability", () => {
     const exceptions = [
       createTestException({ startTime: "10:00", endTime: "11:00" }),
       createTestException({ startTime: "14:00", endTime: "15:00" }),
@@ -153,10 +166,11 @@ describe("generateSlots", () => {
       availability: [],
       exceptions,
       bookings: [],
+      now: FAR_PAST,
     });
 
-    // 10:00-11:00 → 2 slots, 14:00-15:00 → 2 slots
-    expect(result).toHaveLength(4);
+    // No availability → nothing to subtract from
+    expect(result).toEqual([]);
   });
 
   // 10
@@ -170,14 +184,15 @@ describe("generateSlots", () => {
       availability,
       exceptions,
       bookings: [],
+      now: FAR_PAST,
     });
 
     // Regular Monday availability is used
     expect(result).toHaveLength(2);
   });
 
-  // 11
-  it("applies exception when date equals startDate (and endDate is later)", () => {
+  // 11 — Exception subtracts from availability when date equals startDate
+  it("subtracts exception window when date equals startDate (and endDate is later)", () => {
     const availability = [createTestAvailability()];
     const exceptions = [
       createTestException({ endDate: "2026-06-26", startTime: "10:00", endTime: "12:00" }),
@@ -189,14 +204,18 @@ describe("generateSlots", () => {
       availability,
       exceptions,
       bookings: [],
+      now: FAR_PAST,
     });
 
-    // Exception applied: 10:00-12:00 → 4 slots
-    expect(result).toHaveLength(4);
+    // 09:00–10:00 → 2 slots, 12:00–17:00 → 10 slots
+    expect(result).toHaveLength(12);
+    expect(result[0].startAt).toContain("T09:00");
+    expect(result[1].startAt).toContain("T09:30");
+    expect(result[2].startAt).toContain("T12:00");
   });
 
-  // 12
-  it("applies exception when date falls in the middle of a multi-day range", () => {
+  // 12 — Exception subtracts from availability in multi-day range
+  it("subtracts exception window when date falls in the middle of a multi-day range", () => {
     const availability = [createTestAvailability()];
     const exceptions = [
       createTestException({
@@ -213,9 +232,11 @@ describe("generateSlots", () => {
       availability,
       exceptions,
       bookings: [],
+      now: FAR_PAST,
     });
 
-    expect(result).toHaveLength(4);
+    // 09:00–10:00 → 2 slots, 12:00–17:00 → 10 slots
+    expect(result).toHaveLength(12);
   });
 
   // 13
@@ -232,6 +253,7 @@ describe("generateSlots", () => {
       availability,
       exceptions: [],
       bookings,
+      now: FAR_PAST,
     });
 
     expect(result).toEqual([]);
@@ -248,6 +270,7 @@ describe("generateSlots", () => {
       availability,
       exceptions: [],
       bookings,
+      now: FAR_PAST,
     });
 
     expect(result).toHaveLength(1);
@@ -265,6 +288,7 @@ describe("generateSlots", () => {
       availability,
       exceptions: [],
       bookings,
+      now: FAR_PAST,
     });
 
     expect(result).toHaveLength(1);
@@ -281,6 +305,7 @@ describe("generateSlots", () => {
       availability,
       exceptions: [],
       bookings,
+      now: FAR_PAST,
     });
 
     expect(result).toEqual([]);
@@ -302,6 +327,7 @@ describe("generateSlots", () => {
       availability,
       exceptions: [],
       bookings,
+      now: FAR_PAST,
     });
 
     expect(result).toEqual([]);
@@ -323,6 +349,7 @@ describe("generateSlots", () => {
       availability,
       exceptions: [],
       bookings,
+      now: FAR_PAST,
     });
 
     expect(result).toEqual([]);
@@ -344,6 +371,7 @@ describe("generateSlots", () => {
       availability,
       exceptions: [],
       bookings,
+      now: FAR_PAST,
     });
 
     // 09:00–09:15 excluded, 09:15–09:30 partially overlapped (excluded),
@@ -364,6 +392,7 @@ describe("generateSlots", () => {
       availability,
       exceptions: [],
       bookings,
+      now: FAR_PAST,
     });
 
     expect(result).toHaveLength(1);
@@ -380,6 +409,7 @@ describe("generateSlots", () => {
       availability,
       exceptions: [],
       bookings: [],
+      now: FAR_PAST,
     });
 
     // Only 09:00–09:30 fits; 09:30–10:00 would exceed 09:45
@@ -400,12 +430,13 @@ describe("generateSlots", () => {
       availability,
       exceptions,
       bookings: [],
+      now: FAR_PAST,
     });
 
     expect(result).toEqual([]);
   });
 
-  // 23 — Critical gap: duplicate slots from overlapping time windows
+  // 23 — Deduplicate slots from overlapping time windows
   it("deduplicates slots when availability windows overlap", () => {
     const availability = [
       createTestAvailability({ startTime: "09:00", endTime: "10:00" }),
@@ -418,13 +449,14 @@ describe("generateSlots", () => {
       availability,
       exceptions: [],
       bookings: [],
+      now: FAR_PAST,
     });
 
     // Without dedup: 09:00, 09:30 (dup), 10:00. With dedup: 09:00, 09:30, 10:00
     expect(result).toHaveLength(3);
   });
 
-  // 24 — Critical gap: multiple bookings overlapping the same slot
+  // 24 — Multiple bookings overlapping the same slot
   it("excludes a slot when multiple confirmed bookings overlap different parts of the same slot", () => {
     const availability = [createTestAvailability({ endTime: "11:00" })]; // 4 × 30-min slots
     const bookings = [
@@ -438,6 +470,7 @@ describe("generateSlots", () => {
       availability,
       exceptions: [],
       bookings,
+      now: FAR_PAST,
     });
 
     // Both bookings overlap 09:00–09:30. Remaining slots: 09:30, 10:00, 10:30
@@ -458,6 +491,7 @@ describe("generateSlots", () => {
       availability,
       exceptions: [],
       bookings,
+      now: FAR_PAST,
     });
 
     // 09:00–09:30 excluded, 09:30–10:00 free
@@ -478,6 +512,7 @@ describe("generateSlots", () => {
       availability,
       exceptions: [],
       bookings,
+      now: FAR_PAST,
     });
 
     // 09:00–09:15 and 09:15–09:30 excluded, 09:30–09:45 and 09:45–10:00 free
@@ -502,6 +537,7 @@ describe("generateSlots", () => {
       availability,
       exceptions: [],
       bookings,
+      now: FAR_PAST,
     });
 
     // 09:00–09:30 excluded, 09:30–10:00 free
@@ -509,8 +545,8 @@ describe("generateSlots", () => {
     expect(result[0].startAt).toContain("T09:30");
   });
 
-  // 28 — Exception exactly on endDate
-  it("applies exception when date equals endDate", () => {
+  // 28 — Exception subtracts when date equals endDate
+  it("subtracts exception window when date equals endDate", () => {
     const availability = [createTestAvailability()];
     const exceptions = [
       createTestException({
@@ -527,10 +563,11 @@ describe("generateSlots", () => {
       availability,
       exceptions,
       bookings: [],
+      now: FAR_PAST,
     });
 
-    // Exception applied
-    expect(result).toHaveLength(4);
+    // 09:00–10:00 → 2 slots, 12:00–17:00 → 10 slots
+    expect(result).toHaveLength(12);
   });
 
   // 29 — Asymmetric exception times (only startTime)
@@ -546,6 +583,7 @@ describe("generateSlots", () => {
       availability,
       exceptions,
       bookings: [],
+      now: FAR_PAST,
     });
 
     expect(result).toEqual([]);
@@ -561,6 +599,7 @@ describe("generateSlots", () => {
       availability,
       exceptions: [],
       bookings: [],
+      now: FAR_PAST,
     });
 
     // 09:00 + 30 = 09:30 > 09:15, so no slot fits
@@ -580,13 +619,14 @@ describe("generateSlots", () => {
       availability,
       exceptions,
       bookings: [],
+      now: FAR_PAST,
     });
 
     expect(result).toEqual([]);
   });
 
-  // 32 — Overlapping partial exceptions should not produce duplicate slots
-  it("deduplicates slots when partial exceptions have overlapping time windows", () => {
+  // 32 — Partial exception without availability produces no slots
+  it("returns empty when partial exceptions overlap but there is no availability", () => {
     const exceptions = [
       createTestException({ startTime: "09:00", endTime: "10:30" }),
       createTestException({ startTime: "09:30", endTime: "11:00" }),
@@ -598,12 +638,184 @@ describe("generateSlots", () => {
       availability: [],
       exceptions,
       bookings: [],
+      now: FAR_PAST,
     });
 
-    // Without dedup: 09:00, 09:30 (dup), 10:00. With dedup: 09:00, 09:30, 10:00, 10:30
+    // No availability → nothing to subtract from
+    expect(result).toEqual([]);
+  });
+
+  // --- New tests: Bug 1 — past slot filtering ---
+
+  // 33
+  it("filters out slots that start before now", () => {
+    const availability = [createTestAvailability({ endTime: "10:00" })]; // 2 slots: 09:00, 09:30
+
+    const result = generateSlots({
+      date: MONDAY,
+      duration: 30,
+      availability,
+      exceptions: [],
+      bookings: [],
+      now: new Date("2026-06-22T09:15:00.000Z"),
+    });
+
+    // 09:00–09:30 is past (starts before 09:15), only 09:30–10:00 remains
+    expect(result).toHaveLength(1);
+    expect(result[0].startAt).toContain("T09:30");
+  });
+
+  // 34
+  it("keeps slot that starts exactly at now", () => {
+    const availability = [createTestAvailability({ endTime: "10:00" })];
+
+    const result = generateSlots({
+      date: MONDAY,
+      duration: 30,
+      availability,
+      exceptions: [],
+      bookings: [],
+      now: new Date("2026-06-22T09:00:00.000Z"),
+    });
+
+    // 09:00 equals now — should be kept
+    expect(result[0].startAt).toContain("T09:00");
+  });
+
+  // 35
+  it("returns empty when all slots are in the past", () => {
+    const availability = [createTestAvailability({ endTime: "10:00" })];
+
+    const result = generateSlots({
+      date: MONDAY,
+      duration: 30,
+      availability,
+      exceptions: [],
+      bookings: [],
+      now: new Date("2026-06-22T11:00:00.000Z"),
+    });
+
+    expect(result).toEqual([]);
+  });
+
+  // --- New tests: Bug 2 — interval subtraction edge cases ---
+
+  // 36
+  it("subtracts exception in the middle of an availability window", () => {
+    const availability = [createTestAvailability({ startTime: "09:00", endTime: "17:00" })];
+    const exceptions = [createTestException({ startTime: "12:00", endTime: "13:00" })];
+
+    const result = generateSlots({
+      date: MONDAY,
+      duration: 30,
+      availability,
+      exceptions,
+      bookings: [],
+      now: FAR_PAST,
+    });
+
+    // 09:00–12:00 → 6 slots, 13:00–17:00 → 8 slots
+    expect(result).toHaveLength(14);
+    expect(result[0].startAt).toContain("T09:00");
+    expect(result[5].startAt).toContain("T11:30");
+    expect(result[6].startAt).toContain("T13:00");
+    expect(result[result.length - 1].endAt).toContain("T17:00");
+  });
+
+  // 37
+  it("subtracts exception at the start of an availability window", () => {
+    const availability = [createTestAvailability({ startTime: "09:00", endTime: "12:00" })];
+    const exceptions = [createTestException({ startTime: "09:00", endTime: "10:00" })];
+
+    const result = generateSlots({
+      date: MONDAY,
+      duration: 30,
+      availability,
+      exceptions,
+      bookings: [],
+      now: FAR_PAST,
+    });
+
+    // Only 10:00–12:00 → 4 slots
     expect(result).toHaveLength(4);
-    // Verify no duplicates by checking unique startAt values
-    const startTimes = result.map((s) => s.startAt);
-    expect(new Set(startTimes).size).toBe(startTimes.length);
+    expect(result[0].startAt).toContain("T10:00");
+  });
+
+  // 38
+  it("subtracts exception at the end of an availability window", () => {
+    const availability = [createTestAvailability({ startTime: "09:00", endTime: "12:00" })];
+    const exceptions = [createTestException({ startTime: "11:00", endTime: "12:00" })];
+
+    const result = generateSlots({
+      date: MONDAY,
+      duration: 30,
+      availability,
+      exceptions,
+      bookings: [],
+      now: FAR_PAST,
+    });
+
+    // Only 09:00–11:00 → 4 slots
+    expect(result).toHaveLength(4);
+    expect(result[result.length - 1].endAt).toContain("T11:00");
+  });
+
+  // 39
+  it("subtracts exception that fully covers availability window", () => {
+    const availability = [createTestAvailability({ startTime: "10:00", endTime: "11:00" })];
+    const exceptions = [createTestException({ startTime: "09:00", endTime: "17:00" })];
+
+    const result = generateSlots({
+      date: MONDAY,
+      duration: 30,
+      availability,
+      exceptions,
+      bookings: [],
+      now: FAR_PAST,
+    });
+
+    expect(result).toEqual([]);
+  });
+
+  // 40
+  it("subtracts multiple non-overlapping exceptions from the same day", () => {
+    const availability = [createTestAvailability({ startTime: "09:00", endTime: "17:00" })];
+    const exceptions = [
+      createTestException({ startTime: "10:00", endTime: "11:00" }),
+      createTestException({ startTime: "14:00", endTime: "15:00" }),
+    ];
+
+    const result = generateSlots({
+      date: MONDAY,
+      duration: 30,
+      availability,
+      exceptions,
+      bookings: [],
+      now: FAR_PAST,
+    });
+
+    // 09:00–10:00 → 2 slots, 11:00–14:00 → 6 slots, 15:00–17:00 → 4 slots
+    expect(result).toHaveLength(12);
+  });
+
+  // 41
+  it("subtracts exception that overlaps multiple availability windows", () => {
+    const availability = [
+      createTestAvailability({ startTime: "09:00", endTime: "12:00" }),
+      createTestAvailability({ startTime: "13:00", endTime: "17:00" }),
+    ];
+    const exceptions = [createTestException({ startTime: "11:00", endTime: "14:00" })];
+
+    const result = generateSlots({
+      date: MONDAY,
+      duration: 30,
+      availability,
+      exceptions,
+      bookings: [],
+      now: FAR_PAST,
+    });
+
+    // 09:00–11:00 → 4 slots, 14:00–17:00 → 6 slots
+    expect(result).toHaveLength(10);
   });
 });

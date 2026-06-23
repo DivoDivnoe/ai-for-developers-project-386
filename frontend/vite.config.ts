@@ -3,8 +3,8 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';
 
 const DEV_PORT = 5173;
-const MOCK_PORT = 4010;
-const MOCK_TARGET = `http://localhost:${MOCK_PORT}`;
+const BACKEND_PORT = 3000;
+const BACKEND_TARGET = `http://localhost:${BACKEND_PORT}`;
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
@@ -15,7 +15,7 @@ export default defineConfig({
     port: DEV_PORT,
     proxy: {
       '/api': {
-        target: MOCK_TARGET,
+        target: BACKEND_TARGET,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },

@@ -169,6 +169,7 @@ export interface components {
             startAt: string;
             duration: components["schemas"]["MeetingDuration"];
             name: string;
+            /** Format: email */
             email: string;
             comment?: string;
             status: components["schemas"]["BookingStatus"];
@@ -189,6 +190,7 @@ export interface components {
             startAt: string;
             duration: components["schemas"]["MeetingDuration"];
             name: string;
+            /** Format: email */
             email: string;
             comment?: string;
         };
@@ -212,6 +214,7 @@ export interface components {
         MeetingDuration: 15 | 30;
         Owner: {
             name: string;
+            /** Format: email */
             email: string;
             bio?: string;
         };

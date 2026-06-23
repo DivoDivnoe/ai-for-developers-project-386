@@ -81,9 +81,17 @@ backend/
 - [x] `lib/errors.ts` — фабрики `notFound`/`conflict`/`badRequest`/`internalError`
 - [x] `types.ts` — `type AppVariables = { store: Store }`
 
-### Шаг 3: Валидация
+### Шаг 3: Валидация ✓
 
-- [ ] `validation/schemas.ts` — Zod-схемы для всех request body, query, path params
+- [x] `validation/schemas.ts` — Zod-схемы для всех request body, query, path params
+  - `uuidParam`, `getSlotsQuery`, `createBookingBody`, `createAvailabilityBody` (с `.superRefine` для `endTime > startTime`), `createExceptionBody` (с `.superRefine` для дат и времени)
+  - `dayOfWeekValues` с `as const satisfies readonly DayOfWeek[]`
+  - Exhaustiveness check: `type _assertCoverage` + `const _check: _assertCoverage = true` (переменная использует тип, нет TS6196)
+  - `@hono/zod-validator` уже был в зависимостях
+- [x] `eslint.config.mjs` — `@typescript-eslint/no-unused-vars` с `varsIgnorePattern: '^_'`, `argsIgnorePattern: '^_'`
+- [x] `tsconfig.json` — `noUnusedLocals: false` (TypeScript не игнорирует `_`-префикс для const; за этим следит ESLint)
+- [x] `spec/main.tsp` — добавлен `@format("email")` на 3 email-поля (Owner, Booking, CreateBookingRequest)
+- [x] Перегенерированы `openapi/openapi.1.0.0.yaml`, `backend/generated/schema.ts`, `frontend/src/api/schema.d.ts`
 
 ### Шаг 4: Роуты (в порядке сложности)
 

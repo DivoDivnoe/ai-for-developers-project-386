@@ -11,4 +11,10 @@ export default tseslint.config(...base, {
       typescript: { project: './tsconfig.json', tsconfigRootDir: import.meta.dirname },
     },
   },
+  rules: {
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      { varsIgnorePattern: '^_', argsIgnorePattern: '^_' },
+    ],
+  },
 });

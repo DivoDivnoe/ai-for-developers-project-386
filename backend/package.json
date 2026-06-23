@@ -14,6 +14,7 @@
     "gen:api": "openapi-typescript ../openapi/openapi.1.0.0.yaml -o generated/schema.ts"
   },
   "dependencies": {
+    "@hono/zod-validator": "0.8.0",
     "date-fns": "4.4.0",
     "hono": "4.11.0",
     "zod": "4.4.3"

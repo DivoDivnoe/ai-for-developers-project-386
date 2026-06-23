@@ -45,7 +45,7 @@ enum BookingStatus {
 
 model Owner {
   name: string;
-  email: string;
+  @format("email") email: string;
   bio?: string;
 }
 
@@ -54,7 +54,7 @@ model Booking {
   startAt: utcDateTime;
   duration: MeetingDuration;
   name: string;
-  email: string;
+  @format("email") email: string;
   comment?: string;
   status: BookingStatus;
   createdAt: utcDateTime;
@@ -64,7 +64,7 @@ model CreateBookingRequest {
   startAt: utcDateTime;
   duration: MeetingDuration;
   name: string;
-  email: string;
+  @format("email") email: string;
   comment?: string;
 }
 

@@ -19,7 +19,9 @@
 - **Фабрика `createApp(store)`** — изоляция тестов через свежий store
 - **`services/slots.ts` как чистая функция** — `generateSlots({date, duration, availability, exceptions, bookings}) => Slot[]`, легко тестировать
 - **Контрактная типизация** — типы генерируются из OpenAPI в `generated/schema.ts`, обработчики явно типизируют ответ через `c.json<ResponseType>(data)`
-- **In-memory store на Map** — `Map<string, Booking>`, `Map<string, AvailabilityInterval>`, `Map<string, ScheduleException>`
+- **In-memory store на Map** — `Map<string, T>` для bookings, availability, exceptions
+- **Shallow copy** во всех методах чтения store — защита от мутаций в обход update
+- **Фабрики ошибок** — `notFound()` / `conflict()` / `badRequest()` / `internalError()`, caller делает `throw`
 
 ## Структура папок
 
@@ -32,7 +34,7 @@ backend/
   src/
     index.ts              # точка входа: createApp(store) + serve
     app.ts                # createApp(store) => Hono app, регистрация роутов
-    types.ts              # переменные приложения (c.get/c.set typed bindings)
+    types.ts              # Hono Variables (AppVariables)
     routes/
       health.ts           # GET /health
       owner.ts            # GET /owner
@@ -43,34 +45,41 @@ backend/
     validation/
       schemas.ts          # Zod-схемы для всех request body, query, path params
     store/
-      types.ts            # интерфейсы Store, BookingRecord и пр.
+      types.ts            # интерфейс Store, реэкспорт типов записей
       store.ts            # createStore() — Map-based реализация
     services/
       slots.ts            # generateSlots() — чистая функция
       booking.ts          # createBooking() — проверка конфликтов
     lib/
-      errors.ts           # throwNotFound, throwConflict, throwBadRequest
+      errors.ts           # Фабрики HTTPException (notFound, conflict, badRequest, internalError)
   generated/
     schema.ts             # типы из openapi-typescript
 ```
 
 ## Порядок реализации
 
-### Шаг 1: Инфраструктура пакета + типы из OpenAPI ✓
+### Шаг 1: Инфраструктура пакета ✓
 
-- [x] `package.json` — зависимости (hono, zod, date-fns), devDependencies (tsx, vitest, openapi-typescript), скрипты
+- [x] `package.json` — зависимости (hono, zod, date-fns), devDependencies (tsx, vitest, openapi-typescript), скрипты (dev, typecheck, lint, test, verify, gen:api)
 - [x] `tsconfig.json` — extends base, `exactOptionalPropertyTypes: false`
 - [x] `eslint.config.mjs` — extends base + import-x/resolver для TS
 - [x] `vitest.config.ts` — node, globals
 - [x] `gen:api` → `generated/schema.ts`
 - [x] `.gitignore` — `**/todo.md`
 
-### Шаг 2: Хранилище и базовые абстракции
+### Шаг 2: Хранилище и базовые абстракции ✓
 
-- [ ] `store/types.ts` — интерфейсы Store
-- [ ] `store/store.ts` — `createStore()` на Map
-- [ ] `lib/errors.ts` — HTTPException-хелперы
-- [ ] `types.ts` — Hono Variables
+**Решения:**
+
+- Shallow copy `{ ...record }` во всех методах чтения — защита от мутаций store в обход update
+- `update` возвращает `T | undefined` (undefined = не найдено) — атомарный check-and-update
+- ID генерирует route handler через `crypto.randomUUID()`, store получает готовый объект
+- `create` при дубликате ключа перезаписывает (поведение `Map.set`)
+
+- [x] `store/types.ts` — реэкспорт типов из `components["schemas"]`, интерфейс `Store`
+- [x] `store/store.ts` — `createStore(): Store`, три `Map<string, T>`, owner-константа
+- [x] `lib/errors.ts` — фабрики `notFound`/`conflict`/`badRequest`/`internalError`
+- [x] `types.ts` — `type AppVariables = { store: Store }`
 
 ### Шаг 3: Валидация
 
@@ -78,16 +87,16 @@ backend/
 
 ### Шаг 4: Роуты (в порядке сложности)
 
-- [ ] `health.ts` — `GET /health` → `{ status: "ok" }`
-- [ ] `owner.ts` — `GET /owner` → статичные данные владельца
-- [ ] `availability.ts` — CRUD для интервалов доступности
-- [ ] `exceptions.ts` — CRUD для исключений
-- [ ] `services/slots.ts` — `generateSlots()` — генерация слотов
-- [ ] `slots.ts` — `GET /slots?date=&duration=`
-- [ ] `services/booking.ts` — проверка конфликтов + сохранение
-- [ ] `bookings.ts` — CRUD + cancel
-- [ ] `app.ts` — сборка createApp
-- [ ] `index.ts` — точка входа
+1. [ ] `health.ts` — `GET /health` → `{ status: "ok" }`
+2. [ ] `owner.ts` — `GET /owner` → статичные данные владельца
+3. [ ] `availability.ts` — CRUD для интервалов доступности
+4. [ ] `exceptions.ts` — CRUD для исключений
+5. [ ] `services/slots.ts` — `generateSlots()` — генерация слотов
+6. [ ] `slots.ts` — `GET /slots?date=&duration=`
+7. [ ] `services/booking.ts` — проверка конфликтов + сохранение
+8. [ ] `bookings.ts` — CRUD + cancel
+9. [ ] `app.ts` — сборка createApp
+10. [ ] `index.ts` — точка входа
 
 ### Шаг 5: Тесты
 

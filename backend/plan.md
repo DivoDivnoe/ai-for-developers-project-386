@@ -187,8 +187,8 @@ backend/
 
 Самые простые, проверяют паттерн `createApp(createStore())` + `app.request()`.
 
-- [ ] `test/routes/health.test.ts` — 1 тест: `GET /health` → 200 `{ status: "ok" }`
-- [ ] `test/routes/owner.test.ts` — 1 тест: `GET /owner` → 200 `{ name: "Alex Petrov", email: "alex@callbooking.demo" }`
+- [x] `test/routes/health.test.ts` — 1 тест: `GET /health` → 200 `{ status: "ok" }`
+- [x] `test/routes/owner.test.ts` — 1 тест: `GET /owner` → 200 `{ name: "Alex Petrov", email: "alex@callbooking.demo" }`
 
 Верификация: `pnpm -C backend test` — 43 зелёных
 

@@ -1,6 +1,6 @@
-import { serve } from "@hono/node-server";
+import { serve } from '@hono/node-server';
 
-import { createApp } from "./app.js";
-import { createStore } from "./store/store.js";
+import { createApp } from './app.js';
+import { createStore } from './store/store.js';
 
-serve({ fetch: createApp(createStore()).fetch, port: Number(process.env["PORT"]) || 3000 });
+serve({ fetch: createApp(createStore()).fetch, port: Number(process.env['PORT']) || 3000 });

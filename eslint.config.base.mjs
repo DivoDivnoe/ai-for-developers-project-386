@@ -19,6 +19,7 @@ export const base = tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   importXFlatConfigs.recommended,
+  importXFlatConfigs.typescript,
   {
     plugins: { 'prefer-arrow-functions': preferArrow },
     rules: {

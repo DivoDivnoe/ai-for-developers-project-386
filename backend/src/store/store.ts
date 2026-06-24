@@ -1,8 +1,14 @@
-import type { Store, BookingRecord, AvailabilityIntervalRecord, ScheduleExceptionRecord, OwnerRecord } from "./types.js";
+import type {
+  Store,
+  BookingRecord,
+  AvailabilityIntervalRecord,
+  ScheduleExceptionRecord,
+  OwnerRecord,
+} from './types.js';
 
 const owner: OwnerRecord = {
-  name: "Alex Petrov",
-  email: "alex@callbooking.demo",
+  name: 'Alex Petrov',
+  email: 'alex@callbooking.demo',
 };
 
 export const createStore = (): Store => {

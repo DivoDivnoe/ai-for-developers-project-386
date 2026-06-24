@@ -39,7 +39,7 @@ const StatusBadge = ({ status }: { status: Booking['status'] }) => (
 
 const SkeletonRow = () => (
   <TableRow>
-    {Array.from({ length: 7 }).map((_, i) => (
+    {Array.from({ length: 8 }).map((_, i) => (
       <TableCell key={i}>
         <Skeleton className="h-5 w-full" />
       </TableCell>
@@ -55,6 +55,7 @@ const BookingsTableHeader = () => (
       <TableHead>Длительность</TableHead>
       <TableHead>Имя</TableHead>
       <TableHead>Email</TableHead>
+      <TableHead>Комментарий</TableHead>
       <TableHead>Статус</TableHead>
       <TableHead className="w-0" />
     </TableRow>
@@ -107,6 +108,14 @@ const BookingsTable = ({ bookings }: { bookings: Booking[] }) => {
                 )}
               >
                 {booking.email}
+              </TableCell>
+              <TableCell
+                className={cn(
+                  'max-w-[200px] truncate',
+                  booking.status === 'cancelled' && 'line-through',
+                )}
+              >
+                {booking.comment ?? ''}
               </TableCell>
               <TableCell>
                 <StatusBadge status={booking.status} />

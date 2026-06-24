@@ -1,17 +1,17 @@
-import { z } from "zod";
+import { z } from 'zod';
 
-import type { components } from "../../generated/schema.js";
+import type { components } from '../../generated/schema.js';
 
-type DayOfWeek = components["schemas"]["DayOfWeek"];
+type DayOfWeek = components['schemas']['DayOfWeek'];
 
 const dayOfWeekValues = [
-  "monday",
-  "tuesday",
-  "wednesday",
-  "thursday",
-  "friday",
-  "saturday",
-  "sunday",
+  'monday',
+  'tuesday',
+  'wednesday',
+  'thursday',
+  'friday',
+  'saturday',
+  'sunday',
 ] as const satisfies readonly DayOfWeek[];
 
 type _assertCoverage = DayOfWeek extends (typeof dayOfWeekValues)[number] ? true : never;
@@ -44,8 +44,8 @@ export const createAvailabilityBody = z
     if (data.endTime <= data.startTime) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "endTime must be after startTime",
-        path: ["endTime"],
+        message: 'endTime must be after startTime',
+        path: ['endTime'],
       });
     }
   });
@@ -62,15 +62,15 @@ export const createExceptionBody = z
     if (data.endDate < data.startDate) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "endDate must be on or after startDate",
-        path: ["endDate"],
+        message: 'endDate must be on or after startDate',
+        path: ['endDate'],
       });
     }
     if (data.startTime && data.endTime && data.endTime <= data.startTime) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "endTime must be after startTime",
-        path: ["endTime"],
+        message: 'endTime must be after startTime',
+        path: ['endTime'],
       });
     }
   });

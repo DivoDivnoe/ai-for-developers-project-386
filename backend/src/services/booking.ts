@@ -1,11 +1,10 @@
-import { parseISO } from "date-fns";
+import { parseISO } from 'date-fns';
 
-import { conflict } from "../lib/errors.js";
+import { conflict } from '../lib/errors.js';
 
-import { generateSlots } from "./slots.js";
+import { generateSlots } from './slots.js';
 
-import type { Store, BookingRecord } from "../store/types.js";
-
+import type { Store, BookingRecord } from '../store/types.js';
 
 interface CreateBookingInput {
   startAt: string;
@@ -20,7 +19,7 @@ export const createBooking = (store: Store, input: CreateBookingInput): BookingR
 
   // Reject bookings in the past
   if (parseISO(startAt) <= new Date()) {
-    throw conflict("Cannot book a slot in the past");
+    throw conflict('Cannot book a slot in the past');
   }
 
   // Verify the requested time falls within available slots
@@ -35,7 +34,7 @@ export const createBooking = (store: Store, input: CreateBookingInput): BookingR
   });
 
   if (!availableSlots.some((slot) => slot.startAt === startAt)) {
-    throw conflict("This time slot is not available");
+    throw conflict('This time slot is not available');
   }
 
   const booking: BookingRecord = {
@@ -45,7 +44,7 @@ export const createBooking = (store: Store, input: CreateBookingInput): BookingR
     name,
     email,
     ...(comment !== undefined && { comment }),
-    status: "confirmed",
+    status: 'confirmed',
     createdAt: new Date().toISOString(),
   };
 

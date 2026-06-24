@@ -18,6 +18,8 @@ if (process.env['NODE_ENV'] === 'production') {
 
   app.get('*', serveStatic({ root: distPath }));
   app.get('*', serveStatic({ root: distPath, path: 'index.html' }));
+} else {
+  app.route('/', apiApp);
 }
 
 serve({ fetch: app.fetch, port: Number(process.env['PORT']) || 3000 });

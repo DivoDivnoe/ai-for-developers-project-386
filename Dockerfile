@@ -26,4 +26,7 @@ COPY --from=build /app/frontend/dist ./frontend/dist/
 ENV NODE_ENV=production
 EXPOSE 3000
 
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "fetch('http://localhost:' + (process.env.PORT || 3000) + '/health').then(function(r){if(!r.ok)process.exit(1)}).catch(function(){process.exit(1)})"
+
 CMD ["node", "dist/src/index.js"]

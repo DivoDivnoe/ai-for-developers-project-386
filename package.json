@@ -15,10 +15,12 @@
     "format:check": "prettier --check .",
     "typecheck": "pnpm -r run --if-present typecheck",
     "test": "pnpm -r run --if-present test",
+    "test:e2e": "pnpm exec playwright test --config e2e/playwright.config.ts",
     "prepare": "husky"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
+    "@playwright/test": "1.61.1",
     "@types/node": "26.0.0",
     "@vitest/coverage-v8": "4.1.9",
     "eslint": "10.5.0",

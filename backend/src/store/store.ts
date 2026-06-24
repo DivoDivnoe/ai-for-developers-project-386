@@ -62,5 +62,11 @@ export const createStore = (): Store => {
     deleteException: (id) => exceptions.delete(id),
 
     getOwner: () => ({ ...owner }),
+
+    reset: () => {
+      bookings.clear();
+      availability.clear();
+      exceptions.clear();
+    },
   };
 };

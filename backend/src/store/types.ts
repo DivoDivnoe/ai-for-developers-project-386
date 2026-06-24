@@ -24,4 +24,5 @@ export interface Store {
   deleteException(id: string): boolean;
 
   getOwner(): OwnerRecord;
+  reset(): void;
 }

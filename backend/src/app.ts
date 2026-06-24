@@ -6,6 +6,7 @@ import { bookingsRoute } from "./routes/bookings.js";
 import { exceptionsRoute } from "./routes/exceptions.js";
 import { healthRoute } from "./routes/health.js";
 import { ownerRoute } from "./routes/owner.js";
+import { resetRoute } from "./routes/reset.js";
 import { slotsRoute } from "./routes/slots.js";
 
 import type { Store } from "./store/types.js";
@@ -28,6 +29,7 @@ export const createApp = (store: Store): Hono<{ Variables: AppVariables }> => {
   app.route("/bookings", bookingsRoute);
   app.route("/availability", availabilityRoute);
   app.route("/exceptions", exceptionsRoute);
+  app.route("/__test/reset", resetRoute);
 
   return app;
 };
